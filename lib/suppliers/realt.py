@@ -71,13 +71,8 @@ def _rooms_to_rent_type(rooms: int | None) -> str:
     return f"{rooms}_room" if rooms == 1 else f"{rooms}_rooms"
 
 
-def _listing_url(code: int | None) -> str:
-    # Realt listing URLs commonly resolve with the numeric code.
-    # Safer fallback is a code-search if format changes later.
-    if code:
-        return f"https://realt.by/rent/flat-for-long/minsk/{code}/"
-    # Fallback (rare): generic catalog
-    return "https://realt.by/rent/flat-for-long/minsk/"
+def _listing_url(code: int) -> str:
+    return f"https://realt.by/rent-flat-for-long/object/{code}/"
 
 
 class RealtSupplier(Supplier):
