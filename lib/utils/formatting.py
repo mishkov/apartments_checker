@@ -1,6 +1,9 @@
 from datetime import datetime
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
 from lib.models import Listing
+
 
 def pretty_rent_type(rt: str) -> str:
     return rt.replace("_", " ")
@@ -14,8 +17,7 @@ def fmt_time(iso_str: str) -> str:
 
 def format_caption(a: Listing) -> str:
     # Bold price + rooms, blank line after header, blank line after "Last up:"
-    price = a.price_usd.rstrip("0").rstrip(".")
-    header = f'<b>{price}$ {pretty_rent_type(a.rent_type)}</b> — {owner_label(a.owner)}'
+    header = f'<b>{a.price_usd}$ {pretty_rent_type(a.rent_type)}</b> — {owner_label(a.owner)}'
     return "\n".join([
         header,
         "",

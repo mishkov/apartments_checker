@@ -1,6 +1,8 @@
 # apartments_checker/suppliers/realt.py
 from __future__ import annotations
-from typing import Sequence, Any, Dict
+
+from typing import Any, Dict, Sequence
+
 import requests
 
 from lib.models import Listing
@@ -125,20 +127,27 @@ class RealtSupplier(Supplier):
             if isinstance(loc, list) and len(loc) >= 2:
                 lon, lat = float(loc[0]), float(loc[1])
 
-            out.append(Listing(
+            priceint = it.get("price", "")
+
+            li = Listing(
                 source=self.name,
                 id=str(it["uuid"]),
                 url=_listing_url(it.get("code")),
                 photo=images[0] if images else None,
                 rent_type=_rooms_to_rent_type(it.get("rooms")),
-                price_usd=str(it.get("price", "")),           # integer on Realt, keep as string
+                # integer on Realt, keep as string
+                price_usd=str(priceint),
                 created_at=it["createdAt"],
-                last_time_up=it["updatedAt"],                 # best “bump” analogue
-                owner=(it.get("agencyName") is None),         # no agency => owner
+                # best “bump” analogue
+                last_time_up=it["updatedAt"],
+                # no agency => owner
+                owner=(it.get("agencyName") is None),
                 user_address=it.get("address", ""),
                 latitude=lat if lat is not None else 0.0,
                 longitude=lon if lon is not None else 0.0,
-            ))
+            )
+
+            out.append(li)
 
         # Newest-first is already requested via sort DESC, just return
         return out
