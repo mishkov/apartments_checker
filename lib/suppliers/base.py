@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Sequence
-from models import Listing
+from lib.models import Listing
 
 class Supplier(ABC):
     @property

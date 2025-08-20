@@ -1,0 +1,1 @@
+# apartments_checker/__init__.py

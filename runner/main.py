@@ -1,15 +1,16 @@
 import asyncio
 from telegram.ext import Application
-from config import TELEGRAM_TOKEN, CHECK_INTERVAL_SECONDS
-from suppliers.onliner import OnlinerSupplier
+from runner.config import TELEGRAM_TOKEN, CHECK_INTERVAL_SECONDS
+from lib.suppliers.onliner import OnlinerSupplier
+from lib.suppliers.realt import RealtSupplier
 # from suppliers.another_site import AnotherSiteSupplier
-from bot.telegram_bot import attach_handlers, schedule_jobs
+from lib.bot.telegram_bot import attach_handlers, schedule_jobs
 
 def main():
     # 1) Register suppliers here
     suppliers = [
         OnlinerSupplier(),
-        # AnotherSiteSupplier(),
+        RealtSupplier(),
     ]
 
     # 2) Build bot

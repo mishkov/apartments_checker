@@ -1,7 +1,7 @@
 import requests
 from typing import Sequence
-from models import Listing
-from suppliers.base import Supplier
+from lib.models import Listing
+from lib.suppliers.base import Supplier
 
 API_URL = (
     "https://r.onliner.by/sdapi/ak.api/search/apartments"

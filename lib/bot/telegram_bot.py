@@ -2,12 +2,12 @@ import asyncio
 from typing import Sequence
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
-from models import Listing
-from suppliers.base import Supplier
-from core.storage import (
+from lib.models import Listing
+from lib.suppliers.base import Supplier
+from lib.core.storage import (
     load_subscribers, save_subscribers, load_seen, save_seen, make_seen_key
 )
-from utils.formatting import format_caption, build_keyboard
+from lib.utils.formatting import format_caption, build_keyboard
 
 # Handlers
 async def start(update: Update, _: ContextTypes.DEFAULT_TYPE):

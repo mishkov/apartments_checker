@@ -1,6 +1,6 @@
 from datetime import datetime
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
-from models import Listing
+from lib.models import Listing
 
 def pretty_rent_type(rt: str) -> str:
     return rt.replace("_", " ")
