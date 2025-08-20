@@ -1,13 +1,15 @@
 import asyncio
 from typing import Sequence
+
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
+
+from lib.core.storage import (load_seen_for, load_subscribers, make_seen_key,
+                              save_seen_for, save_subscribers)
 from lib.models import Listing
 from lib.suppliers.base import Supplier
-from lib.core.storage import (
-    load_subscribers, save_subscribers, load_seen, save_seen, make_seen_key
-)
-from lib.utils.formatting import format_caption, build_keyboard
+from lib.utils.formatting import build_keyboard, format_caption
+
 
 # Handlers
 async def start(update: Update, _: ContextTypes.DEFAULT_TYPE):
@@ -18,11 +20,13 @@ async def start(update: Update, _: ContextTypes.DEFAULT_TYPE):
         "/status — show stats"
     )
 
+
 async def subscribe(update: Update, _: ContextTypes.DEFAULT_TYPE):
     subs = load_subscribers()
     subs.add(str(update.effective_chat.id))
     save_subscribers(subs)
     await update.message.reply_text("Subscribed ✅")
+
 
 async def unsubscribe(update: Update, _: ContextTypes.DEFAULT_TYPE):
     subs = load_subscribers()
@@ -34,40 +38,48 @@ async def unsubscribe(update: Update, _: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("You are not subscribed.")
 
+
 async def status(update: Update, _: ContextTypes.DEFAULT_TYPE):
+    chat_id = str(update.effective_chat.id)
+    subs = load_subscribers()
+    seen_count = len(load_seen_for(chat_id))
     await update.message.reply_text(
-        f"Subscribers: {len(load_subscribers())}\nSeen: {len(load_seen())}"
+        f"Subscribers: {len(subs)}\nYour seen: {seen_count}"
     )
 
 # Polling job
+
+
 async def poll_and_notify(context: ContextTypes.DEFAULT_TYPE, suppliers: Sequence[Supplier]):
     subs = load_subscribers()
     if not subs:
         return
 
-    seen = load_seen()
-    new_batch: list[Listing] = []
-
-    # Collect newest-first per supplier; append those unseen
+    # 1) Collect newest items across suppliers (no global seen filter here)
+    batch: list[Listing] = []
     for sp in suppliers:
         try:
             listings = sp.fetch()
         except Exception as e:
             print(f"[Supplier {sp.name}] fetch error: {e}")
             continue
-        for li in listings:
-            skey = make_seen_key(li.source, li.id)
-            if skey not in seen:
-                new_batch.append(li)
+        batch.extend(listings)
 
-    if not new_batch:
+    if not batch:
         return
 
-    # Send newest first (already newest-first per supplier)
-    for li in new_batch:
-        caption = format_caption(li)
-        kb = build_keyboard(li)
-        for chat_id in subs:
+    # 2) For each subscriber, send only items they haven't seen yet
+    for chat_id in subs:
+        seen = load_seen_for(chat_id)
+        to_send = [li for li in batch if make_seen_key(
+            li.source, li.id) not in seen]
+        if not to_send:
+            continue
+
+        for li in to_send:
+            caption = format_caption(li)
+            kb = build_keyboard(li)
+
             try:
                 if li.photo:
                     await context.bot.send_photo(
@@ -87,9 +99,14 @@ async def poll_and_notify(context: ContextTypes.DEFAULT_TYPE, suppliers: Sequenc
                     )
             except Exception as e:
                 print(f"Send failed to {chat_id}: {e}")
-        seen.add(make_seen_key(li.source, li.id))
+                # Optional: skip marking as seen on failure so we can retry next tick
+                continue
 
-    save_seen(seen)
+            # Mark as seen for THIS user
+            seen.add(make_seen_key(li.source, li.id))
+
+        save_seen_for(chat_id, seen)
+
 
 def attach_handlers(app: Application):
     app.add_handler(CommandHandler("start", start))
@@ -97,9 +114,11 @@ def attach_handlers(app: Application):
     app.add_handler(CommandHandler("unsubscribe", unsubscribe))
     app.add_handler(CommandHandler("status", status))
 
+
 def schedule_jobs(app: Application, suppliers: Sequence[Supplier], interval_seconds: int):
     # Use PTB JobQueue (install: pip install "python-telegram-bot[job-queue]")
     async def job_callback(context: ContextTypes.DEFAULT_TYPE):
         await poll_and_notify(context, suppliers)
 
-    app.job_queue.run_repeating(job_callback, interval=interval_seconds, first=0)
+    app.job_queue.run_repeating(
+        job_callback, interval=interval_seconds, first=0)
