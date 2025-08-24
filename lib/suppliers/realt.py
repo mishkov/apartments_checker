@@ -96,7 +96,7 @@ class RealtSupplier(Supplier):
             "https://realt.by/bff/graphql",
             headers=HEADERS,
             json=payload,
-            timeout=20,
+            timeout=200,
         )
         resp.raise_for_status()
         data = resp.json()

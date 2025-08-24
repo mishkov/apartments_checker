@@ -26,7 +26,7 @@ class OnlinerSupplier(Supplier):
         return "onliner"
 
     def fetch(self) -> Sequence[Listing]:
-        resp = requests.get(API_URL, headers=HEADERS, timeout=15)
+        resp = requests.get(API_URL, headers=HEADERS, timeout=200)
         resp.raise_for_status()
         data = resp.json()
 
