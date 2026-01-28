@@ -44,20 +44,30 @@ DEFAULT_VARIABLES: Dict[str, Any] = {
     "data": {
         "where": {
             "priceFrom": "340",
-            "priceTo": "540",
+            "priceTo": "600",
             "priceType": "840",
             "priceNegotiable": "true",
             "category": 2,  # Apartments (long-term rent)
-            "geo": {
-                "bbox": [
-                    [27.515173760491987, 53.85658805972214],
-                    [27.576971856195115, 53.87251810942183],
-                ],
-                "polygons": None,
-            },
+            "addressV2": [
+                {"metroStationUuid": "481c9f9e-7b00-11eb-8943-0cc47adabd66"},
+                {"metroStationUuid": "481ca613-7b00-11eb-8943-0cc47adabd66"},
+                {"metroStationUuid": "481caca1-7b00-11eb-8943-0cc47adabd66"},
+                {"metroStationUuid": "481cb2fe-7b00-11eb-8943-0cc47adabd66"},
+                {"metroStationUuid": "481cb3f0-7b00-11eb-8943-0cc47adabd66"},
+                {"metroStationUuid": "481ca4ae-7b00-11eb-8943-0cc47adabd66"},
+                {"metroStationUuid": "481ca9de-7b00-11eb-8943-0cc47adabd66"},
+                {"metroStationUuid": "481caba5-7b00-11eb-8943-0cc47adabd66"},
+                {"metroStationUuid": "481cada1-7b00-11eb-8943-0cc47adabd66"},
+                {"metroStationUuid": "481cae9a-7b00-11eb-8943-0cc47adabd66"},
+                {"metroStationUuid": "481cb081-7b00-11eb-8943-0cc47adabd66"},
+                {"metroStationUuid": "481cb170-7b00-11eb-8943-0cc47adabd66"},
+                {"metroStationUuid": "481ca729-7b00-11eb-8943-0cc47adabd66"},
+                {"metroStationUuid": "481ca889-7b00-11eb-8943-0cc47adabd66"},
+                {"metroStationUuid": "481caf96-7b00-11eb-8943-0cc47adabd66"},
+            ],
         },
         "pagination": {"page": 1, "pageSize": 30},
-        "sort": [{"by": "createdAt", "order": "DESC"}],
+        "sort": [{"by": "updatedAt", "order": "DESC"}],
         "extraFields": None,
         "isReactAdaptiveUA": False,
     }

@@ -4,12 +4,18 @@ from lib.models import Listing
 from lib.suppliers.base import Supplier
 
 API_URL = (
-    "https://r.onliner.by/sdapi/ak.api/search/apartments"
-    "?bounds%5Blb%5D%5Blat%5D=53.856627313959706"
-    "&bounds%5Blb%5D%5Blong%5D=27.525730133056644"
-    "&bounds%5Brt%5D%5Blat%5D=53.87634056593514"
-    "&bounds%5Brt%5D%5Blong%5D=27.556629180908207"
-    "&page=1&order=created_at%3Adesc&v=0.2166729371863111"
+    "https://r.onliner.by/sdapi/ak.api/search/apartments?"
+    "metro%5B%5D=blue_line&"
+    "price%5Bmin%5D=50&"
+    "price%5Bmax%5D=620&"
+    "currency=usd&"
+    "bounds%5Blb%5D%5Blat%5D=53.740183247571835&"
+    "bounds%5Blb%5D%5Blong%5D=27.31475830078125&"
+    "bounds%5Brt%5D%5Blat%5D=54.0553574501532&"
+    "bounds%5Brt%5D%5Blong%5D=27.809143066406254&"
+    "page=1&"
+    "v=0.1633072619118714&"
+    "order=created_at%3Adesc"
 )
 
 HEADERS = {
