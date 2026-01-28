@@ -78,71 +78,41 @@ async def poll_and_notify(context: ContextTypes.DEFAULT_TYPE, suppliers: Sequenc
             continue
 
         for li in to_send:
-            caption = format_caption(li)
-            kb = build_keyboard(li)
+            try:
+                caption = format_caption(li)
+                keyboard = build_keyboard(li)
 
-            for chat_id in subs:
-                sent_ok = False
                 if li.photo:
-                    try:
-                        await context.bot.send_photo(
-                            chat_id=int(chat_id),
-                            photo=li.photo,           # URL
-                            caption=caption,
-                            parse_mode="HTML",
-                            reply_markup=kb,
-                        )
-                        sent_ok = True
-                    except BadRequest as e:
-                        # Specific case: Telegram couldn't fetch a real image from that URL
-                        if "Wrong type of the web page content" in str(e):
-                            # fall back to text only (no image)
-                            await context.bot.send_message(
-                                chat_id=int(chat_id),
-                                text=caption,
-                                parse_mode="HTML",
-                                reply_markup=kb,
-                                disable_web_page_preview=True,
-                            )
-                            sent_ok = True
-                        else:
-                            print(f"Unexpected error when send message with photo {chat_id}: {e}")
-                            # Any other BadRequest -> also fall back to text
-                            await context.bot.send_message(
-                                chat_id=int(chat_id),
-                                text=caption,
-                                parse_mode="HTML",
-                                reply_markup=kb,
-                                disable_web_page_preview=True,
-                            )
-                            sent_ok = True
-                    except Exception as e:
-                        print(f"Unexpected error when send message with photo {chat_id}: {e}")
-                        # Network/other errors -> fall back to text
-                        await context.bot.send_message(
-                            chat_id=int(chat_id),
-                            text=caption,
-                            parse_mode="HTML",
-                            reply_markup=kb,
-                            disable_web_page_preview=True,
-                        )
-                        sent_ok = True
+                    await context.bot.send_photo(
+                        chat_id=int(chat_id),
+                        photo=li.photo,           # URL
+                        caption=caption,
+                        parse_mode="HTML",
+                        reply_markup=keyboard,
+                    )
                 else:
-                    # No photo URL -> just text
                     await context.bot.send_message(
                         chat_id=int(chat_id),
                         text=caption,
                         parse_mode="HTML",
-                        reply_markup=kb,
+                        reply_markup=keyboard,
                         disable_web_page_preview=True,
                     )
-                    sent_ok = True
 
-                if sent_ok:
-                    # mark as seen for this user (if you use per-user seen)
-                    seen.add(make_seen_key(li.source, li.id))
-
-            # save per-user seen after the chat loop if you're batching per user
+                seen.add(make_seen_key(li.source, li.id))
+            except Exception as e:
+                print(
+                    f"Unexpected error when send message {chat_id}: {e}")
+                print("Trying to send error message via bot...")
+                try:
+                    await context.bot.send_message(
+                        chat_id=int(chat_id),
+                        text='Unexpected error. Pleasse look at logs',
+                        disable_web_page_preview=True,
+                    )
+                except Exception as e:
+                    print(
+                        f"Unexpected error when send error message. Please check bot {chat_id}: {e}")
 
         save_seen_for(chat_id, seen)
 
