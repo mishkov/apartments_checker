@@ -126,6 +126,14 @@ class RealtSupplier(Supplier):
             if it.get("priceCurrency") != 840:
                 continue
 
+            # Только 2-комнатные
+            if it.get("rooms") != 2:
+                continue
+        
+            # Только собственники
+            if it.get("agencyName") is not None:
+                continue
+
             images = it.get("images") or []
             lon, lat = None, None
             loc = it.get("location")

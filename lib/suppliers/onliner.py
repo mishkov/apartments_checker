@@ -38,6 +38,20 @@ class OnlinerSupplier(Supplier):
 
         out: list[Listing] = []
         for it in data.get("apartments", []):
+        
+            # Только собственники
+            if not it.get("contact", {}).get("owner", False):
+                continue
+    
+            # Только 2-комнатные
+            if it.get("rent_type") not in ("2_rooms", "2_room"):
+                continue
+    
+            # Только нужный диапазон цены
+            price = float(it["price"]["amount"])
+            if not (340 <= price <= 540):
+                continue
+            
             out.append(Listing(
                 source=self.name,
                 id=str(it["id"]),
